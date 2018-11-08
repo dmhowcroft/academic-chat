@@ -15,7 +15,7 @@ dict_function = {
     'professional': lambda p: [],
     'interests' : lambda p: [],
 
-    'last_pubs': lambda p: params_as_integer,
+    'last_pubs'     :params_as_integer,
     'pubs_between'  :params_as_integers,
     'pubs_with'     :params_as_string,
     'pubs_venue'    :params_as_string,
