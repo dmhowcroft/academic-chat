@@ -47,6 +47,7 @@ class GeneralOracle(Oracle):
 
     def ask(self, rule):
         msg = {'text': 'I don\'t know.'}
+        """
         if rule[0] == 'general':
             msg['text'] = random.choice(['Martin graduated from the Faculty of Mathematics, Astronomy, and Physics of the National University of Córdoba, Argentina, with a M.Sc. in computer science. He\'s currently based in Saarbrücken, Germany, working on his PhD in computational linguistics.',
                                          'He sometimes works as his department\'s unofficial graphic designer. He designed posters, conference booklets, websites, and illustrations for multiple conferences and events.',
@@ -59,7 +60,17 @@ class GeneralOracle(Oracle):
             msg['text'] = random.choice(['His regular hobbies are drawing, music, writing, and some photography.',
                                          'His favorite OS is Unix. More precisely, Debian. But BSD sounds tempting.',
                                          'He prefers tabs over spaces.',
-                                         'He has dinner at 10pm.'])
+                                         'He has dinner at 10pm.'])"""
+        msg['text'] = random.choice(['Martin graduated from the Faculty of Mathematics, Astronomy, and Physics of the National University of Córdoba, Argentina, with a M.Sc. in computer science. He\'s currently based in Saarbrücken, Germany, working on his PhD in computational linguistics.',
+                                     'He sometimes works as his department\'s unofficial graphic designer. He designed posters, conference booklets, websites, and illustrations for multiple conferences and events.',
+                                     'His regular hobbies are drawing, music, writing, and some photography.',
+                                     'He has programmed in several languages (too many), delved into Microcontrollers and Assembly, moved up to Operating Systems, and stuck the landing with some AI and Deep Learning.',
+                                     'He is one of the current system administrators for the ACL Anthology.',
+                                     'If you only have a passing interest on what he does, then he has articles explaininig his research in simple terms. <a href=\'https://7c0h.com/research.html\'>Check them out!</a>.',
+                                     'His regular hobbies are drawing, music, writing, and some photography.',
+                                     'His favorite OS is Unix. More precisely, Debian. But BSD sounds tempting.',
+                                     'He prefers tabs over spaces.',
+                                     'He has dinner at 10pm.'])
         return json.dumps(msg)
 
 
