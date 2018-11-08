@@ -1,10 +1,10 @@
 from nltk.tokenize import word_tokenize as tkz
 
 def params_as_integer(params):
-    return (int(params[0]),)
+    return [int(params[0])]
 
 def params_as_integers(params):
-    return int(params[0]), int(params[1])
+    return [int(params[0]), int(params[1])]
 
 def params_as_string(params):
     p1 = str(params[0])
