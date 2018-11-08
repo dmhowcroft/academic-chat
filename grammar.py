@@ -77,7 +77,7 @@ def p_about(t):
     '''about : GENERAL
              | PROFESSIONAL
              | INTERESTS'''
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_pubs(t):
     '''pubs : LAST_PUBS NUMBER
@@ -85,17 +85,17 @@ def p_pubs(t):
             | PUBS_WITH QUOT TEXT QUOT
             | PUBS_VENUE QUOT TEXT QUOT'''
     if t[1] == 'last_pubs':
-        t[0] = "{} '{}'".format(t[1], t[2])
+        t[0] = [t[1], t[2]]
     elif t[1] == 'pubs_between':
-        t[0] = "{} {} {}".format(t[1], t[2], t[3])
+        t[0] = [t[1], t[2], t[3]]
     else:
-        t[0] = "{} '{}'".format(t[1], t[3])
+        t[0] = [t[1], t[3]]
 
 def p_projects(t):
     '''projects : PROJ_TITLE QUOT TEXT QUOT
                 | PROJ_DESC QUOT TEXT QUOT
                 | PROJ_REPO QUOT TEXT QUOT'''
-    t[0] = "{} '{}'".format(t[1], t[3])
+    t[0] = [t[1], t[3]]
 
 def p_blog(t):
     '''blog : BLOG_LAST
@@ -103,11 +103,11 @@ def p_blog(t):
             | BLOG_POST QUOT TEXT QUOT
             | BLOG_RANDOM'''
     if t[1] == 'blog_last' or t[1] == 'blog_random':
-        t[0] = t[1]
+        t[0] = [t[1]]
     elif t[1] == 'blog_titles':
-        t[0] = "{} {}".format(t[1], t[2])
+        t[0] = [t[1], t[2]]
     elif t[1] == 'blog_post':
-        t[0] = "{} '{}'".format(t[1], t[3])
+        t[0] = [t[1], t[3]]
 
 def p_error(t):
     print("I'm sorry, I don't understand that: {}".format(t))
