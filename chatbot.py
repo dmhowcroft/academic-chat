@@ -23,5 +23,6 @@ if args.train:
     print(params['bibtex'])
 else:
     parsed_input = grammar.parser.parse(args.run)
+    print(parsed_input)
     chatbot = Oracle()
     print(chatbot.ask(parsed_input))

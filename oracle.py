@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import abc
 import random
+from difflib import SequenceMatcher
 
 
 class Oracle:
@@ -110,6 +111,8 @@ class BlogOracle(Oracle):
 
     def ask(self, rule):
         msg = "I don't know"
+        if rule is None:
+            return msg
         if rule[0] == 'blog_last':
             msg = random.choice(['The last blog post is <a href="{}">{}</a>.',
                                  'I think the last blog post is <a href="{}">{}</a>.',
@@ -133,7 +136,14 @@ class BlogOracle(Oracle):
                                  'You mean any blog post? Here\'s one: <a href="{}">{}</a>.'])
             key = list(self.posts_dict)[0]
             msg = msg.format(self.base_url + key, self.posts_dict[key])
+        elif rule[0] == 'blog_post':
+            ratio = 0
+            best = self.post_last
+            for key in self.posts_dict:
+                new_ratio = SequenceMatcher(None, rule[1], self.posts_dict[key]).ratio()
+                if new_ratio > ratio:
+                    best = key
+                    ratio = new_ratio
+            msg = 'The best match I found is this post: <a href="{}">{}</a>.'.format(self.base_url + best,
+                                                                                     self.posts_dict[best])
         return msg
-
-    def string_to_post(self, title):
-        """ Returns the blog post that is the most similar to the given title."""
