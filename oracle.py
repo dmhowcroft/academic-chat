@@ -136,14 +136,14 @@ class BlogOracle(Oracle):
                                          'I think the last blog post is:',
                                          'Here is the latest blog post:',
                                          'You mean the latest blog post? It\'s this one:'])
-            msg['items'] = ['<a href="{}">{}</a>'.format(self.base_url + self.posts_dict[0][0], self.posts_dict[0][1])]
+            msg['items'] = [[self.posts_dict[0][1], self.base_url + self.posts_dict[0][0]]]
         elif rule[0] == 'blog_titles':
             if rule[1] > 1:
                 all_msgs = []
                 msg['text'] = 'These are the latest {} blog posts:'.format(rule[1])
                 for i in range(rule[1]):
                     key = self.posts_dict[i][0]
-                    all_msgs.append("<a href='{}'>{}</a>".format(self.base_url + key, self.posts_dict[i][1]))
+                    all_msgs.append([self.posts_dict[i][1], self.base_url + key])
                 msg['items'] = all_msgs
             else:
                 return self.ask(['blog_last'])
@@ -153,7 +153,7 @@ class BlogOracle(Oracle):
                                          'Here is a completely random blog post:',
                                          'You mean any blog post? Here\'s one:'])
             post = random.choice(self.posts_dict)
-            msg['items'] = ['<a href="{}">{}</a>'.format(self.base_url + post[0], post[1])]
+            msg['items'] = [[post[1], self.base_url + post[0]]]
         elif rule[0] == 'blog_post':
             ratio = 0
             best = 0
@@ -163,6 +163,5 @@ class BlogOracle(Oracle):
                     best = key
                     ratio = new_ratio
             msg['text'] = 'The best match I found is this post:'
-            msg['item'] = ['<a href="{}">{}</a>.'.format(self.base_url + self.posts_dict[best][0],
-                                                         self.posts_dict[best][1])]
+            msg['item'] = [[self.posts_dict[best][1], self.base_url + self.posts_dict[best][0]]]
         return json.dumps(msg)
