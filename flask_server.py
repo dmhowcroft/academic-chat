@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 from flask import Flask, request
 import json
-import grammar
 import gluply
 from oracle import Oracle
 
