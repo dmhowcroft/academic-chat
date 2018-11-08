@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import grammar
 import gluply
 from oracle import Oracle
 
