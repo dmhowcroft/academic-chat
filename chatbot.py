@@ -3,6 +3,7 @@
 import argparse
 import json
 import grammar
+import gluply
 from oracle import Oracle
 
 # Parse arguments for the program
@@ -22,7 +23,7 @@ with open(args.conf_file) as f:
 if args.train:
     print(params['bibtex'])
 else:
-    parsed_input = grammar.parser.parse(args.run)
+    parsed_input = gluply.read_input(args.run)
     print(parsed_input)
     chatbot = Oracle()
     print(chatbot.ask(parsed_input))
