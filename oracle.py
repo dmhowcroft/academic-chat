@@ -3,23 +3,16 @@ import abc
 import json
 import random
 from difflib import SequenceMatcher
+from datetime import date
+from pybtex.database.input import bibtex
 
-publication_lists = [
-    [2018, "The ACL Anthology: Current State and Future Directions"],
-    [2017, "Generating Contrastive Referring Expressions"],
-    [2015, "The Impact of Listener Gaze on Predicting Reference Resolution."],
-    [2013, "Predicting the resolution of referring expressions from user behavior"],
-    [2014, "Interpreting Natural Language Instructions Using Language, Vision, and Behavior"],
-    [2012, "Corpus-based Interpretation of Instructions in Virtual Environments"],
-    [2011, "Inferencia de puntos estratégicos en mundos virtuales"],
-    [2010, "Ingenieria de requisitos web orientada a aspectos con transformacion de modelos"],]
 
 class Oracle:
-    def __init__(self):
+    def __init__(self, bibfile=None):
         """An oracle.py receives structured queries and replies in natural language"""
         self.general = GeneralOracle()
         self.project = ProjectOracle()
-        self.publications = PublicationsOracle()
+        self.publications = PublicationsOracle(bibfile)
         self.blog = BlogOracle()
 
     @abc.abstractmethod
@@ -42,8 +35,7 @@ class Oracle:
         elif rule[0] in self.blog.supported_operations():
             return self.blog.ask(rule)
         else:
-            msg={}
-            msg['text']='I\'m sorry, I didn\'t understand your question'
+            msg = {'text': 'I\'m sorry, I didn\'t understand your question'}
             return json.dumps(msg)
 
 
@@ -56,7 +48,6 @@ class GeneralOracle(Oracle):
 
     def ask(self, rule):
         msg = {'text': 'I don\'t know.'}
-        """
         if rule[0] == 'general':
             msg['text'] = random.choice(['Martin graduated from the Faculty of Mathematics, Astronomy, and Physics of the National University of Córdoba, Argentina, with a M.Sc. in computer science. He\'s currently based in Saarbrücken, Germany, working on his PhD in computational linguistics.',
                                          'He sometimes works as his department\'s unofficial graphic designer. He designed posters, conference booklets, websites, and illustrations for multiple conferences and events.',
@@ -69,17 +60,7 @@ class GeneralOracle(Oracle):
             msg['text'] = random.choice(['His regular hobbies are drawing, music, writing, and some photography.',
                                          'His favorite OS is Unix. More precisely, Debian. But BSD sounds tempting.',
                                          'He prefers tabs over spaces.',
-                                         'He has dinner at 10pm.'])"""
-        msg['text'] = random.choice(['Martin graduated from the Faculty of Mathematics, Astronomy, and Physics of the National University of Córdoba, Argentina, with a M.Sc. in computer science. He\'s currently based in Saarbrücken, Germany, working on his PhD in computational linguistics.',
-                                     'He sometimes works as his department\'s unofficial graphic designer. He designed posters, conference booklets, websites, and illustrations for multiple conferences and events.',
-                                     'His regular hobbies are drawing, music, writing, and some photography.',
-                                     'He has programmed in several languages (too many), delved into Microcontrollers and Assembly, moved up to Operating Systems, and stuck the landing with some AI and Deep Learning.',
-                                     'He is one of the current system administrators for the ACL Anthology.',
-                                     'If you only have a passing interest on what he does, then he has articles explaininig his research in simple terms. <a href=\'https://7c0h.com/research.html\'>Check them out!</a>.',
-                                     'His regular hobbies are drawing, music, writing, and some photography.',
-                                     'His favorite OS is Unix. More precisely, Debian. But BSD sounds tempting.',
-                                     'He prefers tabs over spaces.',
-                                     'He has dinner at 10pm.'])
+                                         'He has dinner at 10pm.'])
         return json.dumps(msg)
 
 
@@ -99,12 +80,82 @@ class PublicationsOracle(Oracle):
     def __init__(self):
         pass
 
+    def __init__(self, bibfile='./publications.bib'):
+        self.parser = bibtex.Parser()
+        self.bib_data = self.parser.parse_file(bibfile)
+
     def supported_operations(self):
         return ['last_pubs', 'pubs_between', 'pubs_with', 'pubs_venue']
 
     def ask(self, rule):
-        msg = {'text': 'I haven\'t been traind to answer that yet. Try this one: %s' % random.choice(publication_lists)[1]}
+        # Make an easy-to-filter list of the publications, and sort it
+        # in reverse chronological format
+        publications = []
+        for entry in self.bib_data.entries:
+            curr_entry = self.bib_data.entries[entry]
+            title = curr_entry.fields['title']
+            author = curr_entry.fields['author']
+            year = int(curr_entry.fields['year'])
+            try:
+                url = curr_entry.fields['url']
+            except KeyError:
+                url = None
+            try:
+                venue = curr_entry.fields['booktitle']
+            except KeyError:
+                try:
+                    venue = curr_entry.fields['journal']
+                except KeyError:
+                    venue = ''
+            publications.append((year, title, url, venue, author))
+        publications.sort(key=lambda x: x[0], reverse=True)
+
+        # Filter the list according to the search criteria
+        suffix = ''
+        if rule[0] == 'last_pubs':
+            num_pubs = rule[1]
+            publications = publications[:num_pubs]
+        elif rule[0] == 'pubs_between':
+            pub_from = self.__normalize_year(rule[1])
+            pub_to = self.__normalize_year(rule[2])
+            publications = list(filter(lambda x: pub_from <= x[0] <= pub_to, publications))
+            suffix = ' in that timeframe'
+        elif rule[0] == 'pubs_with':
+            other = rule[1]
+            publications = list(filter(lambda x: x[4].lower().find(other) >= 0, publications))
+            suffix = ' with that co-author'
+        elif rule[0] == 'pubs_venue':
+            venue = rule[1]
+            publications = list(filter(lambda x: x[3].lower().find(venue) >= 0, publications))
+            suffix = ' in that venue'
+
+        # Customize the output
+        if len(publications) > 0:
+            publications = list(map(lambda x: [x[1], x[2]], publications))
+            msg = {'text': 'These are the publications I found' + suffix,
+                   'items': publications}
+        else:
+            msg = {'text': 'I couldn\'t find any publications' + suffix}
         return json.dumps(msg)
+
+    @staticmethod
+    def __normalize_year(value):
+        """ Normalizes a year value, attempting to turn it into a 4-digit format.
+        Note that this function will assume that a 3-digit year is fine.
+
+        :param value: The original value
+        :return: The same value, but converted to 4 digits if necessary
+        """
+        curr_year = (date.today().year + 1) % 100
+        if value > 1800:
+            return value
+        else:
+            value = value % 100
+            if value > curr_year:
+                return 1900 + value
+            else:
+                return 2000 + value
+
 
 class BlogOracle(Oracle):
     # TODO: There should be a smarter way to query these things that having a hard-coded dictionary
@@ -112,7 +163,7 @@ class BlogOracle(Oracle):
     posts_dict = [
         ('nlp_and_taylor_swift.html', 'A more polite Taylor Swift with NLP and word vectors'),
         ('eyetracking_and_visual_salience.html', 'Eye-tracking and visual salience'),
-        ('sentiments_2_user_groups.html','Sentiments are the new Spam - Part 2: user groups'),
+        ('sentiments_2_user_groups.html', 'Sentiments are the new Spam - Part 2: user groups'),
         ('sentiments_are_the_new_spam.html', 'Sentiments are the new Spam - Prologue'),
         ('calibrate_tablet_genius_mousepen.html', 'Genius MousePen i608 in Debian Linux'),
         ('recommendation.html', 'The problem with music recommendations'),

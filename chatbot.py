@@ -24,5 +24,5 @@ if args.train:
 else:
     parsed_input = gluply.read_input(args.run)
     print(parsed_input)
-    chatbot = Oracle()
+    chatbot = Oracle(params['bibtex'])
     print(chatbot.ask(parsed_input))

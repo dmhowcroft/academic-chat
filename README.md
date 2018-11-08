@@ -14,3 +14,4 @@ Let's go!
 ## Requirements
   * Flask, for the webserver
   * NLTK, with the `punkt` package
+  * Pybtex, for parsing .bib files
