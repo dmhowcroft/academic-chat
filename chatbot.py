@@ -2,6 +2,8 @@
 
 import argparse
 import json
+import grammar
+from oracle import Oracle
 
 # Parse arguments for the program
 parser = argparse.ArgumentParser(description='Runs an English-speaking chatbot that answers questions about your website')
@@ -20,4 +22,6 @@ with open(args.conf_file) as f:
 if args.train:
     print(params['bibtex'])
 else:
-    print(args.translate)
+    parsed_input = grammar.parser.parse(args.run)
+    chatbot = Oracle()
+    print(chatbot.ask(parsed_input))

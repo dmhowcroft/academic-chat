@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import abc
+import random
 
 
 class Oracle:
@@ -21,14 +22,14 @@ class Oracle:
         :param rule: a list composed of an operation and a list of optional parameters
         :return: a natural language answer to the question for the oracle.py
         """
-        if rule[0] in self.general.supported_opperations():
+        if rule[0] in self.general.supported_operations():
             return self.general.ask(rule)
         elif rule[0] in self.project.supported_operations():
             return self.project.ask(rule)
         elif rule[0] in self.publications.supported_operations():
             return self.publications.ask(rule)
         elif rule[0] in self.blog.supported_operations():
-            return self.blog.supported_operations()
+            return self.blog.ask(rule)
         else:
             return "I'm sorry, I didn't understand your question"
 
@@ -67,6 +68,7 @@ class PublicationsOracle(Oracle):
 
 
 class BlogOracle(Oracle):
+    # TODO: There should be a smarter way to query these things that having a hard-coded dictionary
     posts_dict = {
         'nlp_and_taylor_swift.html': 'A more polite Taylor Swift with NLP and word vectors',
         'eyetracking_and_visual_salience.html': 'Eye-tracking and visual salience',
@@ -97,6 +99,8 @@ class BlogOracle(Oracle):
         'almost_there.html': 'Almost there!',
         'setting_things_up.html': 'Setting everything up',
         'first_post.html': 'First post!'}
+    post_last = 'nlp_and_taylor_swift.html'
+    base_url = "https://www.7c0h.com/blog/new/"
 
     def __init__(self):
         pass
@@ -105,7 +109,31 @@ class BlogOracle(Oracle):
         return ['blog_last', 'blog_titles', 'blog_post', 'blog_random']
 
     def ask(self, rule):
-        return "I don't know"
+        msg = "I don't know"
+        if rule[0] == 'blog_last':
+            msg = random.choice(['The last blog post is <a href="{}">{}</a>.',
+                                 'I think the last blog post is <a href="{}">{}</a>.',
+                                 'Here is the latest blog post: <a href="{}">{}</a>.',
+                                 'You mean the latest blog post? It is <a href="{}">{}</a>.'])
+            msg = msg.format(self.base_url + self.post_last, self.posts_dict[self.post_last])
+        elif rule[0] == 'blog_titles':
+            if rule[1] > 1:
+                msg = "These are the latest {} blog posts:<br>".format(rule[1])
+                for i in range(rule[1]-1):
+                    key = list(self.posts_dict)[i]
+                    msg += "<a href='{}'>{}</a>, ".format(self.base_url + "/" + key, self.posts_dict[key])
+                key = list(self.posts_dict)[rule[1]-1]
+                msg += "and <a href='{}'>{}</a>".format(self.base_url + "/" + key, self.posts_dict[key])
+            else:
+                msg = self.ask(['blog_last'])
+        elif rule[0] == 'blog_random':
+            msg = random.choice(['A random blog post is <a href="{}">{}</a>.',
+                                 'I think a good blog post is <a href="{}">{}</a>.',
+                                 'Here is a completely random blog post: <a href="{}">{}</a>.',
+                                 'You mean any blog post? Here\'s one: <a href="{}">{}</a>.'])
+            key = list(self.posts_dict)[0]
+            msg = msg.format(self.base_url + key, self.posts_dict[key])
+        return msg
 
     def string_to_post(self, title):
         """ Returns the blog post that is the most similar to the given title."""
