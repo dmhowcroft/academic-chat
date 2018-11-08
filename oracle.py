@@ -4,6 +4,15 @@ import json
 import random
 from difflib import SequenceMatcher
 
+publication_lists = [
+    [2018, "The ACL Anthology: Current State and Future Directions"],
+    [2017, "Generating Contrastive Referring Expressions"],
+    [2015, "The Impact of Listener Gaze on Predicting Reference Resolution."],
+    [2013, "Predicting the resolution of referring expressions from user behavior"],
+    [2014, "Interpreting Natural Language Instructions Using Language, Vision, and Behavior"],
+    [2012, "Corpus-based Interpretation of Instructions in Virtual Environments"],
+    [2011, "Inferencia de puntos estratégicos en mundos virtuales"],
+    [2010, "Ingenieria de requisitos web orientada a aspectos con transformacion de modelos"],]
 
 class Oracle:
     def __init__(self):
@@ -83,7 +92,7 @@ class PublicationsOracle(Oracle):
         return ['last_pubs', 'pubs_between', 'pubs_with', 'pubs_venue']
 
     def ask(self, rule):
-        msg = {'text': 'I haven\'t been traind to answer that yet.'}
+        msg = {'text': 'I haven\'t been traind to answer that yet. Try this one: %s' % random.choice(publication_lists)[1]}
         return json.dumps(msg)
 
 class BlogOracle(Oracle):
