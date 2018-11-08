@@ -7,7 +7,7 @@ def params_as_integers(params):
     return [int(params[0]), int(params[1])]
 
 def params_as_string(params):
-    return [str(params[0])]
+    return [" ".join(params)]
 
 dict_function = {
     'general': lambda p: [],
