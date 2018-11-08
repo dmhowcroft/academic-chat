@@ -10,3 +10,7 @@ Our goal is to produce a chatbot which:
 * [ ] uses structured CV data to answer questions about us.
 
 Let's go!
+
+## Requirements
+  * Flask, for the webserver
+  * NLTK, with the `punkt` package
