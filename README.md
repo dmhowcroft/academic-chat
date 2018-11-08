@@ -1,6 +1,6 @@
 # academic-chat
 
-Martín Villalba and Dave Howcroft's INLG 2018 hackathon repo
+Martín Villalba, Timothee Mickus, and Dave Howcroft's INLG 2018 hackathon repo
 
 For the INLG 2018 hackathon, we're using flow.ai to develop a chatbot for our academic-professional websites.
 Our goal is to produce a chatbot which:
